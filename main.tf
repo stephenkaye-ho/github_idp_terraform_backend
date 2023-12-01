@@ -9,5 +9,5 @@ variable "hello" {
 }
 
 output "test" {
-    value = var.hello
+  value = var.hello
 }
