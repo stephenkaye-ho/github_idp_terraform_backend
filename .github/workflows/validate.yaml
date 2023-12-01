@@ -24,6 +24,8 @@ jobs:
       - name: Configure AWS IdP Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
+          role-to-assume: arn:aws:iam::850744974572:role/AWSA-SK-GitHubTerraformBackend-Role
+          role-session-name: GitHubActions
           retry-max-attempts: 5
           aws-region: eu-west-2
 
