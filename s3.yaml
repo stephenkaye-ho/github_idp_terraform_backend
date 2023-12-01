@@ -13,8 +13,8 @@ Resources:
       BucketName: !Sub ${BucketName}
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-          ServerSideEncryptionByDefault:
-            SSEAlgorithm: aws:kms
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'aws:kms'
       VersioningConfiguration:
         Status: Enabled
       PublicAccessBlockConfiguration:
