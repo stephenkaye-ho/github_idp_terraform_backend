@@ -1,0 +1,59 @@
+Description: Creates S3 bucket to store Terraform state and roles to allow GitHub Actions to read and write to the bucket.
+
+Parameters:
+  BucketName:
+    Type: String
+    Description: Name of the bucket to store Terraform state
+    Default: sk-tf-be-test
+
+Resources:
+  TerraformS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${BucketName}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  GitHubTerraformAssumeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+            Action:
+              - sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub repo:stephenkaye-ho/github_idp_terraform_backend:*
+                sts:RoleSessionName:
+                  - "GitHubActions"
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+      Policies:
+        - PolicyName: GitHubTerraformAllStatePolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                Resource:
+                  - !Sub arn:aws:s3:::${BucketName}
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  - !Sub arn:aws:s3:::${BucketName}/github/terraform.tfstate
+      RoleName: AWSA-SK-GitHubTerraformBackend-Role
