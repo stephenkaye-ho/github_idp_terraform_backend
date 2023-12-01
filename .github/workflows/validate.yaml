@@ -33,8 +33,7 @@ jobs:
         run: |
           terraform init -reconfigure \
           -backend-config="bucket=${{ secrets.TF_BUCKET }}" \
-          -backend-config="region=eu-west-2" \
-          -backend-config="assume_role={role_arn=\"arn:aws:iam::850744974572:role/AWSA-SK-GitHubTerraformBackend-Role\"}"
+          -backend-config="region=eu-west-2" 
 
       - name: Terraform Validate
         run: terraform validate
